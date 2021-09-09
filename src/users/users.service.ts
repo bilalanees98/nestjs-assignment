@@ -7,25 +7,63 @@ import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private catModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const emailExists = await this.userModel.countDocuments({
+        email: createUserDto.email,
+      });
+      if (emailExists) {
+        return { error: 'user already exists' };
+      }
+      // req.body.password = db.Users.getHashedPassword(req.body.password); //--add password hasing here
+
+      return await this.userModel.create(createUserDto);
+    } catch (error) {
+      return { error: error.toString() };
+    }
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(offset: string, limit: string) {
+    try {
+      const users = await this.userModel
+        .find()
+        .sort({ _id: -1 })
+        .skip(offset ? parseInt(offset) : 0)
+        .limit(limit ? parseInt(limit) : 0);
+
+      return { data: users };
+    } catch (error) {
+      return { error: error.toString() };
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    try {
+      const user = await this.userModel.findOne({ _id: id });
+
+      return { data: user };
+    } catch (error) {
+      return { error: error.toString() };
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      return await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+        new: true,
+      });
+    } catch (error) {
+      return { error: error.toString() };
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    try {
+      return await this.userModel.findByIdAndDelete(id);
+    } catch (error) {
+      return { error: error.toString() };
+    }
   }
 }
