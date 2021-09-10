@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostDocument } from './schemas/post.schema';
@@ -39,6 +40,9 @@ export class PostsService {
     } catch (error) {
       return { error: error.toString() };
     }
+  }
+  async getUserPosts(user: User) {
+    return await this.postModel.find({ user: user }).populate('user');
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {

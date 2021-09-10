@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PostsService } from 'src/posts/posts.service';
+import { Post, PostDocument } from 'src/posts/schemas/post.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly postsService: PostsService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -44,6 +49,16 @@ export class UsersService {
       const user = await this.userModel.findOne({ _id: id });
 
       return { data: user };
+    } catch (error) {
+      return { error: error.toString() };
+    }
+  }
+
+  async getUserPosts(userId: string) {
+    try {
+      const user = await this.userModel.findOne({ _id: userId });
+      const posts = await this.postsService.getUserPosts(user);
+      return { data: posts };
     } catch (error) {
       return { error: error.toString() };
     }
