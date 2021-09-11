@@ -33,7 +33,7 @@ export class UsersService {
         .skip(offset ? parseInt(offset) : 0)
         .limit(limit ? parseInt(limit) : 0);
 
-      return { data: users };
+      return users;
     } catch (error) {
       return { error: error.toString() };
     }
@@ -43,13 +43,13 @@ export class UsersService {
     try {
       const user = await this.userModel.findOne({ _id: id });
 
-      return { data: user };
+      return user;
     } catch (error) {
       return { error: error.toString() };
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     try {
       return await this.userModel.findByIdAndUpdate(id, updateUserDto, {
         new: true,

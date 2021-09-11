@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -18,27 +17,35 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  async create(@Body() createPostDto: CreatePostDto) {
+    const post = await this.postsService.create(createPostDto);
+    return { msg: 'post created', data: post };
   }
 
   @Get()
-  findAll(@Query('offset') offset: string, @Query('limit') limit: string) {
-    return this.postsService.findAll(offset, limit);
+  async findAll(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ) {
+    const posts = await this.postsService.findAll(offset, limit);
+    return { msg: 'posts fetched', data: posts };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const post = await this.postsService.findOne(id);
+    return { msg: 'post fetched', data: post };
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, updatePostDto);
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    const post = await this.postsService.update(id, updatePostDto);
+    return { msg: 'post updated', data: post };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
+  async remove(@Param('id') id: string) {
+    const post = await this.postsService.remove(id);
+    return { msg: 'post deleted', data: post };
   }
 }
