@@ -7,10 +7,15 @@ import {
   Delete,
   Query,
   Put,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -30,6 +35,12 @@ export class UsersController {
     const users = await this.usersService.findAll(offset, limit);
     return { msg: 'users fetched', data: users };
   }
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async findProfile(@Req() req: Request) {
+    const user = await this.usersService.findOne(req.user['userId']);
+    return { msg: 'User Profile', data: user };
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -47,5 +58,10 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     const deletedUser = await this.usersService.remove(id);
     return { msg: 'user deleted', data: deletedUser };
+  }
+
+  @Post('login')
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.login(loginUserDto);
   }
 }
