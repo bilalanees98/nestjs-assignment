@@ -25,7 +25,7 @@ export class PostsService {
         .skip(offset ? parseInt(offset) : 0)
         .limit(limit ? parseInt(limit) : 0);
 
-      return { data: posts };
+      return posts;
     } catch (error) {
       return { error: error.toString() };
     }
@@ -35,7 +35,7 @@ export class PostsService {
     try {
       const post = await this.postModel.findOne({ _id: id });
 
-      return { data: post };
+      return post;
     } catch (error) {
       return { error: error.toString() };
     }
