@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AuthService } from 'src/common/auth.service';
+import { AuthService } from 'src/common/auth/auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,22 +14,23 @@ export class UsersService {
     private authService: AuthService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     try {
       const emailExists = await this.userModel.countDocuments({
         email: createUserDto.email,
       });
       if (emailExists) {
-        return { error: 'user already exists' };
+        //throw an error
+        //return { error: 'user already exists' };
       }
       createUserDto.password = await this.authService.hashPassword(
         createUserDto.password,
       );
-      // req.body.password = db.Users.getHashedPassword(req.body.password); //--add password hasing here
-
-      return await this.userModel.create(createUserDto);
+      const user = await this.userModel.create(createUserDto);
+      return await this.userModel.findOne({ _id: user.id });
     } catch (error) {
-      return { error: error.toString() };
+      //throw an error
+      //return { error: error.toString() };
     }
   }
 

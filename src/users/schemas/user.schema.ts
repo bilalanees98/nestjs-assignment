@@ -14,7 +14,7 @@ export class User {
   @Prop({ required: true, validate: isEmail })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, select: false })
   password: string;
 }
 

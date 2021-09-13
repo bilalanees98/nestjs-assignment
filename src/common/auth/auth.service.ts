@@ -7,8 +7,8 @@ const bcrypt = require('bcrypt');
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  hashPassword(password: string): string {
-    return bcrypt.hash(password, 12);
+  async hashPassword(password: string) {
+    return await bcrypt.hash(password, 12);
   }
   async comparePasswords(
     pass: string,
