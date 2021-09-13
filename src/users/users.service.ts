@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostsService } from 'src/posts/posts.service';
-import { Post, PostDocument } from 'src/posts/schemas/post.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
@@ -79,6 +78,29 @@ export class UsersService {
       return await this.userModel.findByIdAndDelete(id);
     } catch (error) {
       return { error: error.toString() };
+    }
+  }
+
+  async follow(userToFollowId: string, currentUserId: string) {
+    const userExists = await this.userModel.countDocuments({
+      _id: userToFollowId,
+    });
+    if (userExists) {
+      await this.userModel.updateOne(
+        { _id: currentUserId },
+        { $addToSet: { following: userToFollowId } },
+      );
+    }
+  }
+  async unfollow(userToFollowId: string, currentUserId: string) {
+    const userExists = await this.userModel.countDocuments({
+      _id: userToFollowId,
+    });
+    if (userExists) {
+      await this.userModel.updateOne(
+        { _id: currentUserId },
+        { $pull: { following: userToFollowId } },
+      );
     }
   }
 }

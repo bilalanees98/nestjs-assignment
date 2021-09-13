@@ -45,4 +45,21 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
+
+  @Post('follow/:id/:currentUserId')
+  async followUser(
+    @Param('id') id: string,
+    @Param('currentUserId') currentUserId: string,
+  ) {
+    await this.usersService.follow(id, currentUserId); //will have to pass loggedin user or their id
+    return { msg: `${id} followed`, data: { success: true } };
+  }
+  @Post('unfollow/:id/:currentUserId')
+  async unfollowUser(
+    @Param('id') id: string,
+    @Param('currentUserId') currentUserId: string,
+  ) {
+    await this.usersService.unfollow(id, currentUserId); //will have to pass loggedin user or their id
+    return { msg: `${id} unfollowed`, data: { success: true } };
+  }
 }
