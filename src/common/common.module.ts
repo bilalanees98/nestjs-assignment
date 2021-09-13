@@ -22,9 +22,4 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   providers: [AuthService, JwtStrategy, JwtAuthGuard],
   exports: [AuthService],
 })
-export class AuthModule {}
-
-// JwtModule.register({
-//   secret: 'plswork',
-//   signOptions: { expiresIn: '10d' },
-// }),
+export class CommonModule {}
