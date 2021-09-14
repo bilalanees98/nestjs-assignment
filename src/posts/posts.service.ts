@@ -18,7 +18,7 @@ export class PostsService {
     }
   }
 
-  async findAll(offset: string, limit: string) {
+  async findAll(offset: string = '0', limit: string = '0') {
     try {
       const posts = await this.postModel
         .find()
@@ -41,8 +41,13 @@ export class PostsService {
       return { error: error.toString() };
     }
   }
-  async getUserPosts(user: User) {
-    return await this.postModel.find({ user: user }).populate('user');
+
+  async getFollowersPosts(user: User): Promise<Post[]> {
+    return await this.postModel.find({ user: user }).populate({
+      path: 'user',
+      model: 'users',
+      populate: { path: 'following', model: 'users' },
+    });
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
@@ -61,5 +66,13 @@ export class PostsService {
     } catch (error) {
       return { error: error.toString() };
     }
+  }
+  async getUserPosts(user: User): Promise<Post[]> {
+    return await this.postModel.find({ user: user }).populate('user ');
+  }
+  async feed(followedUsers: User[]) {
+    return await this.postModel
+      .find({ user: { $in: followedUsers } })
+      .populate('user');
   }
 }

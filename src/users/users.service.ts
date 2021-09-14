@@ -82,25 +82,23 @@ export class UsersService {
   }
 
   async follow(userToFollowId: string, currentUserId: string) {
-    const userExists = await this.userModel.countDocuments({
-      _id: userToFollowId,
-    });
-    if (userExists) {
-      await this.userModel.updateOne(
-        { _id: currentUserId },
-        { $addToSet: { following: userToFollowId } },
-      );
-    }
+    await this.userModel.updateOne(
+      { _id: currentUserId },
+      { $addToSet: { following: userToFollowId } },
+    );
   }
   async unfollow(userToFollowId: string, currentUserId: string) {
-    const userExists = await this.userModel.countDocuments({
-      _id: userToFollowId,
-    });
-    if (userExists) {
-      await this.userModel.updateOne(
-        { _id: currentUserId },
-        { $pull: { following: userToFollowId } },
-      );
-    }
+    await this.userModel.updateOne(
+      { _id: currentUserId },
+      { $pull: { following: userToFollowId } },
+    );
+  }
+
+  async getFeed(id: string) {
+    const following = await (
+      await this.userModel.findOne({ _id: id })
+    ).following;
+
+    return await this.postsService.feed(following);
   }
 }

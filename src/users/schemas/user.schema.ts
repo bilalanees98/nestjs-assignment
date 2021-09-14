@@ -15,10 +15,10 @@ export class User {
   @Prop({ required: true, validate: isEmail })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
   following: User[];
 }
 

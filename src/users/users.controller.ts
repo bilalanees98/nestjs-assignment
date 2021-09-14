@@ -62,4 +62,10 @@ export class UsersController {
     await this.usersService.unfollow(id, currentUserId); //will have to pass loggedin user or their id
     return { msg: `${id} unfollowed`, data: { success: true } };
   }
+
+  @Get('feed/:id')
+  async getFeed(@Param('id') id: string) {
+    const posts = await this.usersService.getFeed(id); //will have to pass loggedin user or their id
+    return { msg: `feed fetched`, data: posts };
+  }
 }
