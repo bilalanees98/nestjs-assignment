@@ -7,6 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { CommonModule } from './common/common.module';
+import { AuthInterceptor } from './common/interceptors/auth.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -16,6 +18,12 @@ import { CommonModule } from './common/common.module';
     CommonModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuthInterceptor,
+    },
+  ],
 })
 export class AppModule {}
