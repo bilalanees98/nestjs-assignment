@@ -6,15 +6,10 @@ const bcrypt = require('bcrypt');
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
-
-<<<<<<< HEAD:src/common/auth/auth.service.ts
   async verifyToken(token: string) {
     return await this.jwtService.verifyAsync(token);
   }
   async hashPassword(password: string) {
-=======
-  async hashPassword(password: string): string {
->>>>>>> 712f6b5e3b7943caae210f61f528ecb35babb0e7:src/auth/auth.service.ts
     return await bcrypt.hash(password, 12);
   }
   async comparePasswords(
