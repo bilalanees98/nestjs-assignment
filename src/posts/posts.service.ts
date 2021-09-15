@@ -5,16 +5,16 @@ import { User } from 'src/users/schemas/user.schema';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostDocument } from './schemas/post.schema';
+import * as Error from '../common/error.handler';
 
 @Injectable()
 export class PostsService {
   constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto & { user: string }) {
     try {
-      //will have to add user here to post when adding association
       return await this.postModel.create(createPostDto);
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -28,35 +28,25 @@ export class PostsService {
 
       return posts;
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
   async findOne(id: string) {
     try {
       const post = await this.postModel.findOne({ _id: id });
-
       return post;
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
-
-  async getFollowersPosts(user: User): Promise<Post[]> {
-    return await this.postModel.find({ user: user }).populate({
-      path: 'user',
-      model: 'users',
-      populate: { path: 'following', model: 'users' },
-    });
-  }
-
   async update(id: string, updatePostDto: UpdatePostDto) {
     try {
       return await this.postModel.findByIdAndUpdate(id, updatePostDto, {
         new: true,
       });
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -64,15 +54,23 @@ export class PostsService {
     try {
       return await this.postModel.findByIdAndDelete(id);
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
   async getUserPosts(user: User): Promise<Post[]> {
-    return await this.postModel.find({ user: user }).populate('user ');
+    try {
+      return await this.postModel.find({ user: user }).populate('user');
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
   async feed(followedUsers: User[]) {
-    return await this.postModel
-      .find({ user: { $in: followedUsers } })
-      .populate('user');
+    try {
+      return await this.postModel
+        .find({ user: { $in: followedUsers } })
+        .populate('user');
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
 }

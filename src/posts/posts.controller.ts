@@ -7,18 +7,23 @@ import {
   Delete,
   Query,
   Put,
+  Req,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Request } from 'express';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  async create(@Body() createPostDto: CreatePostDto) {
-    const post = await this.postsService.create(createPostDto);
+  async create(@Body() createPostDto: CreatePostDto, @Req() req: Request) {
+    const post = await this.postsService.create({
+      ...createPostDto,
+      user: req.user['id'],
+    });
     return { msg: 'post created', data: post };
   }
 

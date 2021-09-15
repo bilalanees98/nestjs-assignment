@@ -50,6 +50,7 @@ export class AuthMiddleware<T> implements NestMiddleware {
         );
       }
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         {
           message: error.message,
@@ -59,44 +60,4 @@ export class AuthMiddleware<T> implements NestMiddleware {
       );
     }
   }
-
-  // async intercept(
-  //   context: ExecutionContext,
-  //   next: CallHandler,
-  // ): Promise<Observable<any>> {
-  //   const url = context.switchToHttp().getRequest().url;
-  //   const excludedPaths = ['/login'];
-  //   if (true) {
-  //     try {
-  //       const authToken = context.switchToHttp().getRequest()
-  //         .headers.authorization;
-  //       const payload: any = await this.authService.verifyToken(
-  //         authToken.slice(7),
-  //       );
-  //       const exists = await this.userService.userExists(payload.id);
-  //       if (exists) {
-  //         return next.handle();
-  //       } else {
-  //         throw new HttpException(
-  //           {
-  //             message: 'Unauthorized request',
-  //             status: HttpStatus.UNAUTHORIZED,
-  //           },
-  //           HttpStatus.UNAUTHORIZED,
-  //         );
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //       throw new HttpException(
-  //         {
-  //           message: error.message,
-  //           status: HttpStatus.BAD_REQUEST,
-  //         },
-  //         HttpStatus.BAD_REQUEST,
-  //       );
-  //     }
-  //   } else {
-  //     return next.handle();
-  //   }
-  // }
 }

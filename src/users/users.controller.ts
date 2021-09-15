@@ -35,20 +35,39 @@ export class UsersController {
   }
   @Get('profile')
   async findProfile(@Req() req: Request) {
-    // console.log(req.user);
-    const user = await this.usersService.findOne(req.user['id']);
-    return { msg: 'User Profile', data: user };
+    return { msg: 'User Profile', data: req.user };
   }
 
+  @Get('posts')
+  getPosts(@Req() req: Request) {
+    return this.usersService.getUserPosts(req.user['id']);
+  }
+
+  @Post('login')
+  async login(@Body() loginUserDto: LoginUserDto) {
+    return this.usersService.login(loginUserDto);
+  }
+
+  @Post('follow/:id')
+  async followUser(@Param('id') id: string, @Req() req: Request) {
+    await this.usersService.follow(id, req.user['id']);
+    return { msg: `${id} followed`, data: { success: true } };
+  }
+  @Post('unfollow/:id')
+  async unfollowUser(@Param('id') id: string, @Req() req: Request) {
+    await this.usersService.unfollow(id, req.user['id']);
+    return { msg: `${id} unfollowed`, data: { success: true } };
+  }
+
+  @Get('feed/:id')
+  async getFeed(@Param('id') id: string) {
+    const posts = await this.usersService.getFeed(id);
+    return { msg: `feed fetched`, data: posts };
+  }
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findOne(id);
     return { msg: 'user fetched', data: user };
-  }
-
-  @Get('posts/:id')
-  getPosts(@Param('id') id: string) {
-    return this.usersService.getUserPosts(id);
   }
 
   @Put(':id')
@@ -61,33 +80,5 @@ export class UsersController {
   async remove(@Param('id') id: string) {
     const deletedUser = await this.usersService.remove(id);
     return { msg: 'user deleted', data: deletedUser };
-  }
-
-  @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto) {
-    return this.usersService.login(loginUserDto);
-  }
-
-  @Post('follow/:id/:currentUserId')
-  async followUser(
-    @Param('id') id: string,
-    @Param('currentUserId') currentUserId: string,
-  ) {
-    await this.usersService.follow(id, currentUserId); //will have to pass loggedin user or their id
-    return { msg: `${id} followed`, data: { success: true } };
-  }
-  @Post('unfollow/:id/:currentUserId')
-  async unfollowUser(
-    @Param('id') id: string,
-    @Param('currentUserId') currentUserId: string,
-  ) {
-    await this.usersService.unfollow(id, currentUserId); //will have to pass loggedin user or their id
-    return { msg: `${id} unfollowed`, data: { success: true } };
-  }
-
-  @Get('feed/:id')
-  async getFeed(@Param('id') id: string) {
-    const posts = await this.usersService.getFeed(id); //will have to pass loggedin user or their id
-    return { msg: `feed fetched`, data: posts };
   }
 }
