@@ -7,14 +7,12 @@ import {
   Delete,
   Query,
   Put,
-  UseGuards,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { JwtAuthGuard } from 'src/common/auth/jwt-auth.guard';
 import { Request } from 'express';
 
 @Controller('users')
@@ -36,9 +34,9 @@ export class UsersController {
     return { msg: 'users fetched', data: users };
   }
   @Get('profile')
-  @UseGuards(JwtAuthGuard)
   async findProfile(@Req() req: Request) {
-    const user = await this.usersService.findOne(req.user['userId']);
+    // console.log(req.user);
+    const user = await this.usersService.findOne(req.user['id']);
     return { msg: 'User Profile', data: user };
   }
 

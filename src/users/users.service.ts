@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
+import * as Error from '../common/error.handler';
 
 @Injectable()
 export class UsersService {
@@ -14,23 +15,33 @@ export class UsersService {
     private authService: AuthService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+  async userExists(id: string) {
+    const exists = await this.userModel.countDocuments({
+      _id: id,
+    });
+    if (exists) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const emailExists = await this.userModel.countDocuments({
         email: createUserDto.email,
       });
       if (emailExists) {
-        //throw an error
-        //return { error: 'user already exists' };
+        Error.http400('user with this email already exists');
       }
+
       createUserDto.password = await this.authService.hashPassword(
         createUserDto.password,
       );
       const user = await this.userModel.create(createUserDto);
       return await this.userModel.findOne({ _id: user.id });
     } catch (error) {
-      //throw an error
-      //return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -44,18 +55,16 @@ export class UsersService {
 
       return users;
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
   async findOne(id: string): Promise<User | undefined> {
     try {
       const user = await this.userModel.findOne({ _id: id });
-
       return user;
     } catch (error) {
-      //raise an error over here
-      //return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -65,7 +74,7 @@ export class UsersService {
         new: true,
       });
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -73,7 +82,7 @@ export class UsersService {
     try {
       return await this.userModel.findByIdAndDelete(id);
     } catch (error) {
-      return { error: error.toString() };
+      Error.http400(error.message);
     }
   }
 
@@ -81,10 +90,14 @@ export class UsersService {
     try {
       const user = await this.userModel.findOne({ email: email });
       return user;
-    } catch (error) {}
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
   async login(loginUserDto: LoginUserDto) {
-    const potentialUser = await this.getUser(loginUserDto.email);
+    const potentialUser = await await this.userModel
+      .findOne({ email: loginUserDto.email })
+      .select('+password');
     if (
       potentialUser &&
       (await this.authService.comparePasswords(
@@ -94,8 +107,7 @@ export class UsersService {
     ) {
       return await this.authService.generateJwt(potentialUser);
     } else {
-      console.log('throwing an error');
-      //throw some sort of error
+      Error.http401('incorrect credentials');
     }
   }
 }
