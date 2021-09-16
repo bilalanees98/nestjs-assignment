@@ -174,7 +174,13 @@ export class UsersService {
         sort,
       );
     } catch (error) {
-      Error.http400(error.message);
+      throw new HttpException(
+        {
+          message: error.message,
+          status: error.status,
+        },
+        error.status,
+      );
     }
   }
 }

@@ -56,7 +56,7 @@ export class AuthMiddleware<T> implements NestMiddleware {
           message: error.message,
           status: error.status ? error.status : HttpStatus.BAD_REQUEST,
         },
-        HttpStatus.BAD_REQUEST,
+        error.status ? error.status : HttpStatus.BAD_REQUEST,
       );
     }
   }

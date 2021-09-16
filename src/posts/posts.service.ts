@@ -6,13 +6,27 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostDocument } from './schemas/post.schema';
 import * as Error from '../common/error.handler';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { io } from 'socket.io-client';
+import { Request } from 'express';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
-  async create(createPostDto: CreatePostDto & { user: string }) {
+  // socket = io('http://localhost:3000');
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    private eventEmitter: EventEmitter2,
+  ) {}
+  async create(createPostDto: CreatePostDto & { user: string }, req?: Request) {
     try {
-      return await this.postModel.create(createPostDto);
+      const post = await this.postModel.create(createPostDto);
+
+      const event: any = { post: post };
+      if (req) {
+        event.user = req.user;
+      }
+      this.eventEmitter.emit('post', event);
+      return post;
     } catch (error) {
       Error.http400(error.message);
     }
@@ -32,9 +46,11 @@ export class PostsService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, req?: Request) {
     try {
       const post = await this.postModel.findOne({ _id: id });
+      // this.socket.emit('post', post);
+
       return post;
     } catch (error) {
       Error.http400(error.message);
@@ -71,19 +87,15 @@ export class PostsService {
     keyword: string,
     sort: string,
   ) {
-    try {
-      const filters: any = { user: { $in: followedUsers } };
-      if (keyword) {
-        filters.$text = { $search: keyword };
-      }
-      return await this.postModel
-        .find(filters)
-        .skip(offset)
-        .limit(limit)
-        .sort({ createdAt: sort })
-        .populate('user');
-    } catch (error) {
-      Error.http400(error.message);
+    const filters: any = { user: { $in: followedUsers } };
+    if (keyword) {
+      filters.$text = { $search: keyword };
     }
+    return await this.postModel
+      .find(filters)
+      .skip(offset)
+      .limit(limit)
+      .sort({ createdAt: sort })
+      .populate('user');
   }
 }

@@ -32,10 +32,13 @@ export class PostsController {
   @ApiOkResponse({ description: 'post created' })
   @Post()
   async create(@Body() createPostDto: CreatePostDto, @Req() req: Request) {
-    const post = await this.postsService.create({
-      ...createPostDto,
-      user: req.user['id'],
-    });
+    const post = await this.postsService.create(
+      {
+        ...createPostDto,
+        user: req.user['id'],
+      },
+      req,
+    );
     return { msg: 'post created', data: post };
   }
 
@@ -51,8 +54,8 @@ export class PostsController {
 
   @ApiOkResponse({ description: 'post fetched' })
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const post = await this.postsService.findOne(id);
+  async findOne(@Req() req: Request) {
+    const post = await this.postsService.findOne(req.user['id'], req);
     return { msg: 'post fetched', data: post };
   }
 
