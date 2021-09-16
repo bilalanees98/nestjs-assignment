@@ -17,3 +17,4 @@ export class Post {
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
+PostSchema.index({ title: 'text', body: 'text' }, { name: 'searchableText' });

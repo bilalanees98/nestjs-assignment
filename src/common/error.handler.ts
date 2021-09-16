@@ -29,13 +29,3 @@ export const http404 = (message: string) => {
     HttpStatus.NOT_FOUND,
   );
 };
-
-export const http500 = (message: string) => {
-  throw new HttpException(
-    {
-      message,
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-    },
-    HttpStatus.INTERNAL_SERVER_ERROR,
-  );
-};

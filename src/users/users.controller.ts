@@ -59,9 +59,9 @@ export class UsersController {
     return { msg: `${id} unfollowed`, data: { success: true } };
   }
 
-  @Get('feed/:id')
-  async getFeed(@Param('id') id: string) {
-    const posts = await this.usersService.getFeed(id);
+  @Get('feed')
+  async getFeed(@Req() req: Request) {
+    const posts = await this.usersService.getFeed(req);
     return { msg: `feed fetched`, data: posts };
   }
   @Get(':id')

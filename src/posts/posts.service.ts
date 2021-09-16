@@ -64,10 +64,23 @@ export class PostsService {
       Error.http400(error.message);
     }
   }
-  async feed(followedUsers: User[]) {
+  async feed(
+    followedUsers: User[],
+    offset: number,
+    limit: number,
+    keyword: string,
+    sort: string,
+  ) {
     try {
+      const filters: any = { user: { $in: followedUsers } };
+      if (keyword) {
+        filters.$text = { $search: keyword };
+      }
       return await this.postModel
-        .find({ user: { $in: followedUsers } })
+        .find(filters)
+        .skip(offset)
+        .limit(limit)
+        .sort({ createdAt: sort })
         .populate('user');
     } catch (error) {
       Error.http400(error.message);

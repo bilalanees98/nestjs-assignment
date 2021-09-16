@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PostsService } from 'src/posts/posts.service';
@@ -8,6 +8,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import * as Error from '../common/error.handler';
+import { Request, response } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -107,40 +108,73 @@ export class UsersService {
     }
   }
   async login(loginUserDto: LoginUserDto) {
-    const potentialUser = await await this.userModel
-      .findOne({ email: loginUserDto.email })
-      .select('+password');
-    if (
-      potentialUser &&
-      (await this.authService.comparePasswords(
-        loginUserDto.password,
-        potentialUser.password,
-      ))
-    ) {
-      return await this.authService.generateJwt(potentialUser);
-    } else {
-      Error.http401('incorrect credentials');
+    try {
+      const potentialUser = await await this.userModel
+        .findOne({ email: loginUserDto.email })
+        .select('+password');
+      if (
+        potentialUser &&
+        (await this.authService.comparePasswords(
+          loginUserDto.password,
+          potentialUser.password,
+        ))
+      ) {
+        return await this.authService.generateJwt(potentialUser);
+      } else {
+        Error.http401('incorrect credentials');
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: error.message,
+          status: error.status,
+        },
+        error.status,
+      );
     }
   }
 
   async follow(userToFollowId: string, currentUserId: string) {
-    await this.userModel.updateOne(
-      { _id: currentUserId },
-      { $addToSet: { following: userToFollowId } },
-    );
+    try {
+      await this.userModel.updateOne(
+        { _id: currentUserId },
+        { $addToSet: { following: userToFollowId } },
+      );
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
   async unfollow(userToFollowId: string, currentUserId: string) {
-    await this.userModel.updateOne(
-      { _id: currentUserId },
-      { $pull: { following: userToFollowId } },
-    );
+    try {
+      await this.userModel.updateOne(
+        { _id: currentUserId },
+        { $pull: { following: userToFollowId } },
+      );
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
 
-  async getFeed(id: string) {
-    const following = await (
-      await this.userModel.findOne({ _id: id })
-    ).following;
+  async getFeed(req: Request) {
+    try {
+      const offset = req.query.offset
+        ? parseInt(req.query.offset as string)
+        : 0;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 0;
+      const keyword = req.query.keyword ? (req.query.keyword as string) : null;
+      const sort = req.query.sort ? (req.query.sort as string) : 'desc';
 
-    return await this.postsService.feed(following);
+      const following = (await this.userModel.findOne({ _id: req.user['id'] }))
+        .following;
+      return await this.postsService.feed(
+        following,
+        offset,
+        limit,
+        keyword,
+        sort,
+      );
+    } catch (error) {
+      Error.http400(error.message);
+    }
   }
 }
