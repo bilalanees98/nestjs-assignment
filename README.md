@@ -74,7 +74,7 @@ See the collection for documentation:
 
 ## Architecture Diagram
 
-![Screenshot](docs/images/Architectural diagram.png)
+![Screenshot](docs/images/architectural-diagram.png)
 
 ## Database Design
 
