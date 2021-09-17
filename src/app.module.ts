@@ -8,6 +8,10 @@ import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { CommonModule } from './common/common.module';
 import { AuthMiddleware } from './common/middlwares/auth.middleware';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -15,6 +19,10 @@ import { AuthMiddleware } from './common/middlwares/auth.middleware';
     UsersModule,
     PostsModule,
     CommonModule,
+    EventEmitterModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -23,7 +31,14 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude({ path: '/users/login', method: RequestMethod.POST })
+      .exclude(
+        { path: '/users/login', method: RequestMethod.POST },
+        { path: '/users', method: RequestMethod.POST },
+        { path: '/main.js', method: RequestMethod.GET },
+        { path: '/styles.css', method: RequestMethod.GET },
+        { path: '/favicon.ico', method: RequestMethod.GET },
+        { path: '/', method: RequestMethod.GET },
+      )
       .forRoutes('*');
   }
 }
