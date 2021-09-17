@@ -33,6 +33,7 @@ export class AppModule {
       .apply(AuthMiddleware)
       .exclude(
         { path: '/users/login', method: RequestMethod.POST },
+        { path: '/users', method: RequestMethod.POST },
         { path: '/main.js', method: RequestMethod.GET },
         { path: '/styles.css', method: RequestMethod.GET },
         { path: '/favicon.ico', method: RequestMethod.GET },

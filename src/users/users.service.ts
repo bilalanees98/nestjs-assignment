@@ -19,13 +19,13 @@ export class UsersService {
   ) {}
 
   async userExists(id: string) {
-    const exists = await this.userModel.countDocuments({
+    const user = await this.userModel.findOne({
       _id: id,
     });
-    if (exists) {
-      return true;
+    if (user) {
+      return user;
     } else {
-      return false;
+      return null;
     }
   }
 
@@ -140,6 +140,10 @@ export class UsersService {
         { _id: currentUserId },
         { $addToSet: { following: userToFollowId } },
       );
+      await this.userModel.updateOne(
+        { _id: userToFollowId },
+        { $addToSet: { followers: currentUserId } },
+      );
     } catch (error) {
       Error.http400(error.message);
     }
@@ -149,6 +153,10 @@ export class UsersService {
       await this.userModel.updateOne(
         { _id: currentUserId },
         { $pull: { following: userToFollowId } },
+      );
+      await this.userModel.updateOne(
+        { _id: userToFollowId },
+        { $pull: { followers: currentUserId } },
       );
     } catch (error) {
       Error.http400(error.message);
@@ -164,8 +172,9 @@ export class UsersService {
       const keyword = req.query.keyword ? (req.query.keyword as string) : null;
       const sort = req.query.sort ? (req.query.sort as string) : 'desc';
 
-      const following = (await this.userModel.findOne({ _id: req.user['id'] }))
+      const following = (await this.userModel.findOne({ _id: req.user['_id'] }))
         .following;
+
       return await this.postsService.feed(
         following,
         offset,

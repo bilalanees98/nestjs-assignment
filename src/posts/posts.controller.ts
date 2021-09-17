@@ -35,7 +35,7 @@ export class PostsController {
     const post = await this.postsService.create(
       {
         ...createPostDto,
-        user: req.user['id'],
+        user: req.user['_id'],
       },
       req,
     );
@@ -55,7 +55,7 @@ export class PostsController {
   @ApiOkResponse({ description: 'post fetched' })
   @Get(':id')
   async findOne(@Req() req: Request) {
-    const post = await this.postsService.findOne(req.user['id'], req);
+    const post = await this.postsService.findOne(req.params['id'], req);
     return { msg: 'post fetched', data: post };
   }
 

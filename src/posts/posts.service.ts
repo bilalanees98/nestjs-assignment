@@ -7,12 +7,10 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostDocument } from './schemas/post.schema';
 import * as Error from '../common/error.handler';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { io } from 'socket.io-client';
 import { Request } from 'express';
 
 @Injectable()
 export class PostsService {
-  // socket = io('http://localhost:3000');
   constructor(
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     private eventEmitter: EventEmitter2,
@@ -20,8 +18,8 @@ export class PostsService {
   async create(createPostDto: CreatePostDto & { user: string }, req?: Request) {
     try {
       const post = await this.postModel.create(createPostDto);
-
-      const event: any = { post: post };
+      console.log(post);
+      const event: { post: any; user?: any } = { post: post };
       if (req) {
         event.user = req.user;
       }

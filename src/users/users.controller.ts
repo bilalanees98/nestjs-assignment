@@ -72,20 +72,21 @@ export class UsersController {
   @ApiOkResponse({ description: 'User Followed' })
   @Post('follow/:id')
   async followUser(@Param('id') id: string, @Req() req: Request) {
-    await this.usersService.follow(id, req.user['id']);
+    await this.usersService.follow(id, req.user['_id']);
     return { msg: `${id} followed`, data: { success: true } };
   }
 
   @ApiOkResponse({ description: 'User unfollowed' })
   @Post('unfollow/:id')
   async unfollowUser(@Param('id') id: string, @Req() req: Request) {
-    await this.usersService.unfollow(id, req.user['id']);
+    await this.usersService.unfollow(id, req.user['_id']);
     return { msg: `${id} unfollowed`, data: { success: true } };
   }
 
   @ApiOkResponse({ description: 'Feed Fetched' })
   @Get('feed')
   async getFeed(@Req() req: Request) {
+    // console.log(req.user);
     const posts = await this.usersService.getFeed(req);
     return { msg: `feed fetched`, data: posts };
   }

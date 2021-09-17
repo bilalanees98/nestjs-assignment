@@ -9,7 +9,6 @@ import {
 import { Server } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Socket } from 'socket.io-client';
-import { Post } from '@nestjs/common';
 
 @WebSocketGateway()
 export class PostsGateway
@@ -19,23 +18,26 @@ export class PostsGateway
   @WebSocketServer() server: Server;
 
   @OnEvent('post')
-  handlePostCreatedEvent(event: any) {
-    const following = event.user.following;
-    const followers = following;
-    // const followers: any = event.users.followers;
+  async handlePostCreatedEvent(event: { post: any; user: any }) {
+    const followerIds: string[] = event.user.followers;
+
     const socketsToUpdate: string[] = [];
-    this.users.forEach((user) => {
-      if (followers.includes(user.id)) {
-        socketsToUpdate.push(user.socketId);
-      }
-    });
+    const followersToUpdate: string[] = [];
+
+    if (followerIds) {
+      this.users.forEach((connectedUser) => {
+        if (followerIds.includes(connectedUser.id)) {
+          socketsToUpdate.push(connectedUser.socketId);
+          followersToUpdate.push(connectedUser.id);
+        }
+      });
+    }
     const post = event.post;
-    console.log(event);
-    console.log('followers to update: ', socketsToUpdate);
-    this.server.to(socketsToUpdate).emit('post', post);
-    // if (socketsToUpdate.length !== 0) {
-    //   this.server.to(socketsToUpdate).emit('post', post);
-    // }
+    console.log('sockets to update: ', socketsToUpdate);
+    console.log('followers to update: ', followersToUpdate);
+    if (socketsToUpdate.length !== 0) {
+      this.server.to(socketsToUpdate).emit('post', post);
+    }
   }
   handleConnection(client: any, ...args: any[]) {
     console.log('connected');
@@ -51,6 +53,5 @@ export class PostsGateway
   async onStart(client: Socket, id) {
     console.log('listened: ', id);
     this.users.push({ id: id, socketId: client.id });
-    // client.broadcast.emit('post', message);
   }
 }

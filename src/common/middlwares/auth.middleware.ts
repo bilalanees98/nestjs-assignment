@@ -35,10 +35,10 @@ export class AuthMiddleware<T> implements NestMiddleware {
       const payload: PayloadInterface = await this.authService.verifyToken(
         authToken.slice(7),
       );
-      const exists = await this.userService.userExists(payload.id);
-      if (exists) {
-        const { iat, ...newPayload } = payload;
-        req.user = newPayload;
+      const user = await this.userService.userExists(payload.id);
+      if (user) {
+        // const { iat, ...newPayload } = payload;
+        req.user = user;
         next();
       } else {
         throw new HttpException(
