@@ -45,7 +45,7 @@ const app = new Vue({
   async created() {
     const email = prompt('Please enter your email', 'email');
     const password = prompt('Please enter your password', 'password');
-    const loginRes = await fetch('http://localhost:3000/users/login', {
+    const loginRes = await fetch(`/users/login`, {
       method: 'post',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -58,10 +58,10 @@ const app = new Vue({
     let payload = this.parseJwt(this.token);
     ({ id, firstName } = payload);
     console.log(firstName);
-    this.socket = io('http://localhost:3000');
+    this.socket = io();
     this.socket.emit('userId', id);
 
-    const res = await fetch('http://localhost:3000/users/feed', {
+    const res = await fetch(`/users/feed`, {
       method: 'get',
       headers: new Headers({
         Authorization: 'Bearer ' + this.token,
