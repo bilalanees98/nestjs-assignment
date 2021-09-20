@@ -25,21 +25,8 @@ const app = new Vue({
 
       return JSON.parse(jsonPayload);
     },
-    sendMessage() {
-      if (this.validateInput()) {
-        const message = {
-          name: this.name,
-          text: this.text,
-        };
-        this.socket.emit('post', message);
-        this.text = '';
-      }
-    },
     receivedPosts(posts) {
       this.posts.push(posts);
-    },
-    validateInput() {
-      return this.name.length > 0 && this.text.length > 0;
     },
   },
   async created() {

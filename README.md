@@ -9,6 +9,7 @@ This project was bootstrapped with [nestjs](https://nestjs.com/).
 - On the frontend a user can login to view a very crude live feed of the posts of the users that they follow. However, the entire REST api has been configured and can be used as well.
 - A user can sign up, login, view feed, follow/unfollow other users
 - A user can create and view posts
+- user email:taimoor@gmail.com & password: taimoor when prompted to see the feed for a user
 
 ## Requirements
 
@@ -53,8 +54,9 @@ Create .env file in the project root
 ```bash
 Add these credentials in .env file
 PORT=3000
-mongoURL = "mongodb://localhost/nest"
+mongoURL = "mongodb+srv://muhammad-bilal:b3d8vrqjGtbtOqfW@cluster0.yydcd.mongodb.net/nest"
 JWT_SECRET = "plswork"
+NODE_ENV = development
 
 ```
 
@@ -70,7 +72,7 @@ npm run start
 
 See the collection for documentation:
 
-- navigate to localhost:3000/api in your browser after running run command
+- navigate to <YOUR-URL>/api in your browser
 
 ## Architecture Diagram
 
@@ -79,3 +81,7 @@ See the collection for documentation:
 ## Database Design
 
 ![Screenshot](docs/images/database-diagram.png)
+
+## Flow Chart
+
+![Screenshot](docs/images/flowchart.png)
