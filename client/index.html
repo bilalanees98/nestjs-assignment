@@ -13,6 +13,7 @@
     <title>Nestjs SocketIO</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
     <script
       type="text/javascript"
       src="https://cdn.socket.io/socket.io-3.0.0.js"
@@ -36,7 +37,7 @@
             <br />
             <div class="card">
               <div id="posts" class="card-block">
-                <ul>
+                <ul id="postList">
                   <li v-for="post of posts">
                     {{ post.title }}: {{ post.body }}
                   </li>
@@ -44,21 +45,13 @@
               </div>
             </div>
             <br />
-            <!-- <textarea
-              id="textarea"
-              class="form-control"
-              v-model="text"
-              placeholder="Enter message..."
-            ></textarea> -->
+
             <br />
-            <!-- <button id="send" class="btn" @click.prevent="sendMessage">
-              Send
-            </button> -->
           </div>
         </div>
       </div>
     </div>
-
+    <!-- <script src="code.js"></script> -->
     <script src="main.js"></script>
   </body>
 </html>

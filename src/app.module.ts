@@ -35,6 +35,7 @@ export class AppModule {
         { path: '/users/login', method: RequestMethod.POST },
         { path: '/users', method: RequestMethod.POST },
         { path: '/main.js', method: RequestMethod.GET },
+        { path: '/code.js', method: RequestMethod.GET },
         { path: '/styles.css', method: RequestMethod.GET },
         { path: '/favicon.ico', method: RequestMethod.GET },
         { path: '/', method: RequestMethod.GET },
