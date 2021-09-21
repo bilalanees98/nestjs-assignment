@@ -20,23 +20,21 @@ export class PostsGateway
   @OnEvent('post')
   async handlePostCreatedEvent(event: { post: any; user: any }) {
     const followerIds: string[] = event.user.followers;
-
-    const socketsToUpdate: string[] = [];
-    const followersToUpdate: string[] = [];
-
-    if (followerIds) {
-      this.users.forEach((connectedUser) => {
-        if (followerIds.includes(connectedUser.id)) {
-          socketsToUpdate.push(connectedUser.socketId);
-          followersToUpdate.push(connectedUser.id);
-        }
-      });
+    const usersToUpdate: { id: string; socketId: string }[] = this.users.filter(
+      (user) => followerIds.includes(user.id),
+    );
+    if (usersToUpdate.length !== 0) {
+      console.log(
+        'from usersToupdate: ',
+        usersToUpdate.map((user) => user.id),
+      );
     }
     const post = event.post;
-    console.log('sockets to update: ', socketsToUpdate);
-    console.log('followers to update: ', followersToUpdate);
-    if (socketsToUpdate.length !== 0) {
-      this.server.to(socketsToUpdate).emit('post', post);
+    console.log('users to update: ', usersToUpdate);
+    if (usersToUpdate.length !== 0) {
+      this.server
+        .to(usersToUpdate.map((user) => user.socketId))
+        .emit('post', post);
     }
   }
   handleConnection(client: any, ...args: any[]) {
@@ -45,8 +43,14 @@ export class PostsGateway
   afterInit(server: any) {
     console.log('initialized');
   }
-  async handleDisconnect() {
-    console.log('disconnected');
+  async handleDisconnect(client: Socket) {
+    const removed = this.users.splice(
+      this.users.findIndex((user) => {
+        return client.id === user.socketId;
+      }),
+      1,
+    );
+    console.log('disconnected user: ', removed);
   }
 
   @SubscribeMessage('userId')
